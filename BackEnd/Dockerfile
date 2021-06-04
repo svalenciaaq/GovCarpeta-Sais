@@ -1,5 +1,5 @@
 # pull the base image
-FROM node:14.17
+FROM node:alpine
 
 # set the working direction
 WORKDIR /app
@@ -16,9 +16,6 @@ RUN npm install
 
 # add app
 COPY . ./
-
-
-EXPOSE 8080
 
 # start app
 CMD ["npm", "start"]

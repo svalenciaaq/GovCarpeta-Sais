@@ -6,10 +6,12 @@ var logger = require('morgan');
 var usersRouter = require('./routes/users');
 var fileRouter = require('./routes/files');
 const fileUpload = require('express-fileupload');
+var cors = require('cors')
 
 var app = express();
 
 // view engine setup
+app.use(cors())
 app.use(express.json());
 app.use(logger('dev'));
 app.use(fileUpload());

@@ -16,7 +16,7 @@ function register(email, password, document, name, address){
         body: JSON.stringify(obj)
     };
 
-    let url = "http://localhost:8080/users/user/register";
+    let url = "http://3.210.36.237:5000/users/user/register";
 
     return fetch(url, requestOptions).then(handleResponse);
 }
@@ -33,7 +33,7 @@ function uploadFile(filename, file, fileTitle){
         body: data
     };
 
-    let url = "http://localhost:8080/files/file/upload/" + filename + "/" + fileTitle;
+    let url = "http://3.210.36.237:5000/files/file/upload/" + filename + "/" + fileTitle;
 
     return fetch(url, requestOptions).then(handleResponse);
 }
@@ -51,7 +51,7 @@ function login(email, password){
         body: JSON.stringify(obj)
     };
 
-    let url = "http://localhost:8080/users/user/login";
+    let url = "http://3.210.36.237:5000/users/user/login";
 
     return fetch(url, requestOptions).then(handleResponse);
 }
@@ -66,7 +66,7 @@ function getFileList(){
         }
     };
 
-    let url = "http://localhost:8080/files/file/list";
+    let url = "http://3.210.36.237:5000/files/file/list";
 
     return fetch(url, requestOptions).then(handleResponse);
 }
