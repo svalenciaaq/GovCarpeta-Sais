@@ -104,7 +104,7 @@ router.post('/user/login',function(req, res, next) {
                             document: result[0].document,
                             userId: result[0].id
                         },
-                        process.env.JWT_KEY
+                        "e1fa73c73e7c85eaab3b43dda87726f1"
                     );
                     return res.status(200).json({
                         msg: "successful",

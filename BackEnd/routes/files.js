@@ -4,11 +4,10 @@ const request = require('request');
 const router = express.Router();
 const AWS = require('aws-sdk');
 const checkAuth = require('../authentication/auth');
-
 const s3ls = require("s3-ls");
 const s3 = new AWS.S3({
-    accessKeyId: process.env.AWS_ACCESS_KEY,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+    accessKeyId: "AKIAIBGJ2EZRLQYT3MXA",
+    secretAccessKey: "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",
     Bucket: 'appstestepico',
     signatureVersion: 'v4'
 });
