@@ -21,7 +21,7 @@ function register(email, password, document, name, address){
     return fetch(url, requestOptions).then(handleResponse);
 }
 
-function uploadFile(filename, file){
+function uploadFile(filename, file, fileTitle){
     var data = new FormData();
     data.append("file", file);
 
@@ -33,7 +33,7 @@ function uploadFile(filename, file){
         body: data
     };
 
-    let url = "http://localhost:8080/files/file/upload/" + filename;
+    let url = "http://localhost:8080/files/file/upload/" + filename + "/" + fileTitle;
 
     return fetch(url, requestOptions).then(handleResponse);
 }

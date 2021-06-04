@@ -13,13 +13,15 @@ class Homepage extends Component {
             content: [],
             uploadmsg: "",
             selectedFiles: [],
-            uploadFile: false
+            uploadFile: false,
+            fileTitle: ""
         };
         this.logoff = this.logoff.bind(this);
         this.handleDrop = this.handleDrop.bind(this);
         this.onChangeFileHandler = this.onChangeFileHandler.bind(this);
         this.checkDuplicates = this.checkDuplicates.bind(this);
         this.uploadFile =  this.uploadFile.bind(this);
+        this.onChangeFileTitle =  this.onChangeFileTitle.bind(this);
         this.toggle = this.toggle.bind(this);
     }
 
@@ -36,13 +38,23 @@ class Homepage extends Component {
         let filesArray = Array.from(files);
         for (let key in filesArray) {
             if (this.checkDuplicates(filesArray[key], fileList)) {
-            fileList.push(filesArray[key]);
+                fileList.push(filesArray[key]);
             }
         }
         this.setState({
             selectedFiles: fileList,
         })
     };
+
+    onChangeFileTitle(event){
+        const target = event.target;
+        let value = target.type === 'checkbox' ? target.checked : target.value;
+        let name = target.name;
+    
+        this.setState({
+          [name]: value
+        });
+    }
 
     onChangeFileHandler = event => {
         let files = event.target.files;
@@ -80,11 +92,37 @@ class Homepage extends Component {
     }
 
     uploadFile(){
-        let {selectedFiles} = this.state;
-        if(selectedFiles && selectedFiles[0]){
-            services.uploadFile(selectedFiles[0].name, selectedFiles[0]).then(data => {
+        let {selectedFiles, fileTitle} = this.state;
+        let upload = true;
+        if(!selectedFiles || !selectedFiles[0]){
+            upload = false
+            this.setState({
+                errorFileSelected: true
+            })
+        }else{this.setState({ errorFileSelected: false })}
+        if(!fileTitle || fileTitle === ""){
+            upload = false
+            this.setState({
+                errorFileTitle: true
+            })
+        }else{this.setState({ errorFileTitle: false })}
 
-            });
+        if (upload) {
+            services.uploadFile(selectedFiles[0].name, selectedFiles[0], fileTitle).then(data => {
+                if (data.code === 200) {
+                    this.setState({
+                        errorFileTitle: false,
+                        errorFileSelected: false,
+                        uploadmsg: <p className={'text-success mt-5'}>{data.msg}</p>
+                    })
+                }else{
+                    this.setState({
+                        errorFileTitle: false,
+                        errorFileSelected: false,
+                        uploadmsg: <p className={'text-danger mt-5'}>{data.msg}</p>
+                    })
+                }
+            });    
         }
     }
 
@@ -102,25 +140,29 @@ class Homepage extends Component {
     }
 
     render(){
-        const {content, uploadFile, uploadmsg, selectedFiles} = this.state;
+        const {content, uploadFile, uploadmsg, selectedFiles, errorFileTitle, errorFileSelected} = this.state;
         let fileList = [];
         let tableContent = [];
         
         for(let key in content){
-            tableContent.push(
-                <tr>
-                    <th scope="row">{content[key]}</th>
-                </tr>
-            );
+            let filename = content[key];    
+            let fileParts = filename.split("/");
+            if (fileParts && fileParts[1]) {
+                tableContent.push(
+                    <tr>
+                        <th scope="row">{fileParts[1]}</th>
+                    </tr>
+                );                  
+            }
         }
 
         if (selectedFiles.length > 0) {
             for (let key in selectedFiles) {
-              fileList.push(
-                <li className="form-control list-group-item" style={{display: '-webkit-inline-box'}} key={key}>
-                    <p>{selectedFiles[key].name}</p>
-                </li>
-              );
+                fileList.push(
+                    <li className="form-control list-group-item" style={{display: '-webkit-inline-box'}} key={key}>
+                        <p>{selectedFiles[key].name}</p>
+                    </li>
+                );
             }
           }
 
@@ -140,6 +182,7 @@ class Homepage extends Component {
                 }} className="mt-auto">
                     <Card>
                         <CardBody>
+                        {content.length > 0 ?
                             <Table responsive={true}>
                                 <thead>
                                     <tr>
@@ -150,6 +193,11 @@ class Homepage extends Component {
                                     {tableContent}
                                 </tbody>
                             </Table>
+                        : 
+                        <div className="mt-5 mb-5 text-center">
+                            <h4>No results found for your document. Try to upload something!</h4>
+                        </div>
+                        }
                             <Button color="warning" onClick={this.logoff} type="submit" className='mt-4' style={{width: '100%'}}>Log off</Button>
                         </CardBody>
                     </Card>
@@ -159,9 +207,27 @@ class Homepage extends Component {
                     <ModalHeader toggle={this.toggle}>Upload file</ModalHeader>
                     <ModalBody>
                         <div className="form-group">
-                            <label htmlFor="files" className="btn btn-block btn-dark">Choose your file(s) </label>
-                            <input type="file" id="files" hidden={true} className="form-control"
-                                onChange={this.onChangeFileHandler}/>
+                            {errorFileTitle ? 
+                                <Alert  color="danger" fade={false}>
+                                    Necesita ingresar un titulo de documento para continuar
+                                </Alert >
+                                : 
+                                ""
+                            }
+                            {errorFileSelected ? 
+                                <Alert  color="danger" fade={false}>
+                                    Necesita seleccionar un archivo para continuar
+                                </Alert >
+                                : 
+                                ""
+                            }
+                            <div className="col">
+                                <label htmlFor="files" className="btn btn-block btn-dark w-100">Choose your file(s) </label>
+                                <input type="text" name="fileTitle" className="form-control mt-2" placeholder="Titulo del documento"
+                                    onChange={this.onChangeFileTitle}/>
+                                <input type="file" id="files" hidden={true} className="form-control"
+                                    onChange={this.onChangeFileHandler}/>
+                            </div>
                             <div className="offset-md-3 col-md-6 text-center">
                                 {uploadmsg}
                             </div>

@@ -24,6 +24,7 @@ class Register extends Component {
             errorConfirmPassword: false,
             errorDocument: false,
             errorUserRegistered: false,
+            errorUserRegisteredWithUs: false,
             success: false,
             msgFromBack: null
         };
@@ -70,8 +71,6 @@ class Register extends Component {
             this.setState({errorConfirmPassword: false, errorEmail: false, errorDocument: false});
             services.register(email, password, document, name, address).then(data => {
                 if(data.code === 400){
-                    console.log("400");
-                    console.log("data.msg", data.msg);
                     if(data.msg.includes("email")){
                         this.setState({
                             errorEmailExists: true,
@@ -87,6 +86,11 @@ class Register extends Component {
                     if(data.msg.includes("ERROR_USER_ON_ANOTHER_OPERATOR")){
                         this.setState({
                             errorUserRegistered: true
+                        });
+                    }
+                    if(data.msg.includes("ERROR_USER_ALREADY_REGISTERED")){
+                        this.setState({
+                            errorUserRegisteredWithUs: true
                         });
                     }
                     if(data.msg.includes("Could not register")){
@@ -115,7 +119,8 @@ class Register extends Component {
     
 
     render(){
-        const {password,confirmPassword, errorDocumentExists, errorUserRegistered,name,errorName, address, errorAddress,
+        const {password,confirmPassword, errorDocumentExists, errorUserRegisteredWithUs,
+            errorUserRegistered,name,errorName, address, errorAddress,
             errorEmailExists, email, document, errorConfirmPassword, success,errorEmail, errorDocument} = this.state;
         return(
             <div style={{
@@ -139,6 +144,13 @@ class Register extends Component {
                         {errorUserRegistered ? 
                             <Alert  color="danger" fade={false}>
                                 Este numero de documento ya esta registrado en un operador
+                            </Alert >
+                            : 
+                            ""
+                        }
+                        {errorUserRegisteredWithUs ? 
+                            <Alert  color="danger" fade={false}>
+                                Este numero de documento ya esta registrado con nosotros
                             </Alert >
                             : 
                             ""
