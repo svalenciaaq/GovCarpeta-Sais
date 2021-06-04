@@ -23,6 +23,7 @@ class Homepage extends Component {
         this.uploadFile =  this.uploadFile.bind(this);
         this.onChangeFileTitle =  this.onChangeFileTitle.bind(this);
         this.toggle = this.toggle.bind(this);
+        this.getFileList = this.getFileList.bind(this);
     }
 
     
@@ -122,8 +123,17 @@ class Homepage extends Component {
                         uploadmsg: <p className={'text-danger mt-5'}>{data.msg}</p>
                     })
                 }
+                this.getFileList();
             });    
         }
+    }
+
+    getFileList(){
+        services.getFileList().then(data => {
+            if(data.content){
+                this.setState({content: data.content});
+            }
+        });
     }
 
     componentDidMount(){
@@ -131,11 +141,7 @@ class Homepage extends Component {
         if(!jwt){
             this.props.history.push("/login");
         }else{
-            services.getFileList().then(data => {
-                if(data.content){
-                    this.setState({content: data.content});
-                }
-            });
+            this.getFileList();
         }
     }
 
@@ -169,7 +175,7 @@ class Homepage extends Component {
         return(
             <div>
                 <div>
-                    <Button color="warning" className={"m-4"} onClick={this.toggle}>Upload File</Button>
+                    <Button color="danger" className={"m-4"} onClick={this.logoff}>Log off</Button>
                 </div>
                 <div style={{
                     display: "block", 
@@ -198,7 +204,7 @@ class Homepage extends Component {
                             <h4>No results found for your document. Try to upload something!</h4>
                         </div>
                         }
-                            <Button color="warning" onClick={this.logoff} type="submit" className='mt-4' style={{width: '100%'}}>Log off</Button>
+                            <Button color="warning" onClick={this.toggle} type="submit" className='mt-4' style={{width: '100%'}}>Upload File</Button>
                         </CardBody>
                     </Card>
                 </div>
