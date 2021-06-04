@@ -30,7 +30,11 @@ class Homepage extends Component {
     toggle(){
         const {uploadFile} = this.state;
         this.setState({
-            uploadFile: !uploadFile
+            uploadFile: !uploadFile,
+            selectedFiles: [],
+            errorFileSelected: false,
+            errorFileTitle: false,
+            uploadmsg: "",
         })
     }
 
