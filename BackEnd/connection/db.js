@@ -1,10 +1,11 @@
 const mysql = require('mysql');
 
 const connection = mysql.createConnection({
-    host: 'localhost',
+    host: 'govcarpeta.c0lmy47n0wae.us-east-1.rds.amazonaws.com',
     user: 'root',
-    password: '1234',
-    database: 'govCarpeta'
+    password: 'pruebaeafit',
+    database: 'govCarpeta',
+    port: '3306'
 });
 
 
