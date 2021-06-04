@@ -37,7 +37,7 @@ router.post('/user/register', function(req, res, next) {
             connection.query('INSERT INTO users SET ?', user, function (error, results, fields) {
                 if (error) {
                     res.send({
-                        "code":400,
+                        "code":401,
                         "msg": error.sqlMessage
                     })
                 } else {
