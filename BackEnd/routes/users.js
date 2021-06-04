@@ -15,54 +15,63 @@ router.post('/user/register', function(req, res, next) {
     let canCreate = false;
     let uri = 'https://govcarpetaapp.mybluemix.net/apis/validateCitizen/' + document;
     let uriRegister = 'https://govcarpetaapp.mybluemix.net/apis/registerCitizen';
+    let queryString = "SELECT * FROM users WHERE document = " + "'" + document + "'";
 
-    request(uri, { json: true }, async (err, res2, body) => {
-        if (err) { return console.log(err); }
-        if (res2.statusCode === 200){
-            res.send({
-                "code":400,
-                "msg": "ERROR_USER_ON_ANOTHER_OPERATOR"
-            });
-        }
-        if (res2.statusCode === 204){
-            const encryptedPassword = await bcrypt.hash(password, 10)
-            var user ={
-                "email":email,
-                "password": encryptedPassword,
-                "name": name,
-                "address": address,
-                "document": document,
-                "folder": document + "_govCarpeta"
-            }
-            connection.query('INSERT INTO users SET ?', user, function (error, results, fields) {
-                if (error) {
+    connection.query(queryString, function (error, results, fields) {
+        if (error || !results[0]) {
+            request(uri, { json: true }, async (err, res2, body) => {
+                if (err) { return console.log(err); }
+                if (res2.statusCode === 200){
                     res.send({
                         "code":400,
-                        "msg": error.sqlMessage
-                    })
-                } else {
-                    var bodyRegister = {
-                        ...user,
-                        "operatorId": 40,
-                        "id": document,
-                        "operatorName": "Sanisaval"
+                        "msg": "ERROR_USER_ON_ANOTHER_OPERATOR"
+                    });
+                }
+                if (res2.statusCode === 204){
+                    const encryptedPassword = await bcrypt.hash(password, 10)
+                    var user ={
+                        "email":email,
+                        "password": encryptedPassword,
+                        "name": name,
+                        "address": address,
+                        "document": document,
+                        "folder": document + "_govCarpeta"
                     }
-                    request.post(uriRegister, { json: true, body: bodyRegister }, (err, res2, body) => {
-                        if (err) { return console.log(err); }
-                        if (res2.statusCode === 201){
+                    connection.query('INSERT INTO users SET ?', user, function (error, results, fields) {
+                        if (error) {
                             res.send({
-                                "code":200,
-                                "msg":"user registered sucessfully"
-                            });
-                        }
-                        if (res2.statusCode === 500){
-                            res.send({
-                                "code":200,
-                                "msg":"Could not register user on govCarpeta"
+                                "code":400,
+                                "msg": error.sqlMessage
+                            })
+                        } else {
+                            var bodyRegister = {
+                                ...user,
+                                "operatorId": 40,
+                                "id": document,
+                                "operatorName": "Sanisaval"
+                            }
+                            request.post(uriRegister, { json: true, body: bodyRegister }, (err, res2, body) => {
+                                if (err) { return console.log(err); }
+                                if (res2.statusCode === 201){
+                                    res.send({
+                                        "code":200,
+                                        "msg":"user registered sucessfully"
+                                    });
+                                }else{
+                                    res.send({
+                                        "code":400,
+                                        "msg":"Could not register user on govCarpeta"
+                                    });
+                                }
                             });
                         }
                     });
                 }
+            });
+        }else{
+            res.send({
+                "code":400,
+                "msg": "ERROR_USER_ALREADY_REGISTERED"
             });
         }
     });
@@ -92,6 +101,7 @@ router.post('/user/login',function(req, res, next) {
                         {
                             email: result[0].email,
                             folder: result[0].folder,
+                            document: result[0].document,
                             userId: result[0].id
                         },
                         process.env.JWT_KEY
